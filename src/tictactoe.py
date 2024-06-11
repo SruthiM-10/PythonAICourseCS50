@@ -1,7 +1,7 @@
 """
 Tic Tac Toe Player
 """
-
+import copy
 import math
 
 X = "X"
@@ -22,7 +22,15 @@ def player(board):
     """
     Returns player who has the next turn on a board.
     """
-    if board.count(EMPTY) == 9 or board.count(X) < board.count(O):
+    countX = 0
+    countO = 0
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == X:
+                countX += 1
+            elif board[i][j] == O:
+                countO += 1
+    if board == initial_state() or countX <= countO:
         play = X
     else:
         play = O
@@ -45,8 +53,9 @@ def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    new_board = board.deepcopy()
-    if new_board[action[0]][action[1]] == EMPTY:
+    new_board = copy.deepcopy(board)
+    if ((0 <= action[0] < 3) and (0 <= action[1] < 3) and
+            new_board[action[0]][action[1]] is EMPTY):
         new_board[action[0]][action[1]] = player(board)
         return new_board
     else:
@@ -61,7 +70,7 @@ def winner(board):
     for i in range(3):
         flag = True
         for j in range(1, 3):
-            if board[i][j] != board[i][j - 1]:
+            if board[i][j] != board[i][j - 1] or board[i][j] is EMPTY:
                 flag = False
                 break
         if flag:
@@ -70,14 +79,14 @@ def winner(board):
     for j in range(3):
         flag = True
         for i in range(1, 3):
-            if board[i][j] != board[i - 1][j]:
+            if board[i][j] != board[i - 1][j] or board[i][j] is EMPTY:
                 flag = False
                 break
         if flag:
             return board[0][j]
     # winning by diagonal
     if (board[0][0] == board[1][1] == board[2][2] or
-            board[2][0] == board[1][1] == board[0][2]):
+            board[2][0] == board[1][1] == board[0][2] and board[1][1] is not EMPTY):
         return board[1][1]
     return None
 
@@ -88,8 +97,11 @@ def terminal(board):
     """
     if winner(board) is not None:
         return True
-    else:
-        return False
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] is EMPTY:
+                return False
+    return True
 
 
 def utility(board):
